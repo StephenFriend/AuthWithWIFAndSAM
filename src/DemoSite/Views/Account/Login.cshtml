@@ -1,0 +1,30 @@
+﻿@model DemoSite.Models.LoginInput
+
+@{
+    ViewBag.Title = "Login";
+}
+
+<h2>Login</h2>
+@if (User.Identity.IsAuthenticated)
+{
+    <p>
+        You are already logged in as @User.Identity.Name
+    </p>
+}
+else
+{
+    using (Html.BeginForm())
+    {
+ @Html.ValidationSummary()
+    
+    <fieldset>
+        <legend>@ViewBag.Title</legend>
+
+        @Html.EditorForModel()
+
+        <button type="submit">Login</button>
+
+    </fieldset>
+    }
+}
+
