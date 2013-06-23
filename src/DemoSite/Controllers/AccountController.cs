@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Services;
+using System.IdentityModel.Tokens;
 using System.Linq;
+using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
@@ -20,7 +23,7 @@ namespace DemoSite.Controllers
        {
            if (ModelState.IsValid && LoginDetailsAreValid(model))
            {
-               FormsAuthentication.SetAuthCookie(model.Email, false);
+               WriteAuthCookie(model.Email);
                return RedirectToAction("MyStuff", "Home");
            }
 
@@ -36,6 +39,18 @@ namespace DemoSite.Controllers
             return (string.Compare(loginDetails.Email, "you@example.com",
                                    StringComparison.InvariantCultureIgnoreCase) == 0 &&
                     string.Compare(loginDetails.Password, "password", StringComparison.Ordinal) == 0);
+        }
+
+        private void WriteAuthCookie(string userEmail)
+        {
+            var claims = new List<Claim>();
+            claims.Insert(0, new Claim(ClaimTypes.Name, userEmail)); 
+            var claimsId = new ClaimsIdentity(claims, "Password");
+            var cp = new ClaimsPrincipal(claimsId);
+            var sam = FederatedAuthentication.SessionAuthenticationModule;
+            var token = new SessionSecurityToken(cp);
+
+            sam.WriteSessionTokenToCookie(token);
         }
     }
 }
